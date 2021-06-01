@@ -1,5 +1,7 @@
 import unittest
 
+from client import ChatClient
+
 
 class TestChatFunctional(unittest.TestCase):
     def test_message_exchange(self):

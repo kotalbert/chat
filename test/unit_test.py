@@ -1,6 +1,8 @@
 import unittest
+from unittest.mock import Mock, patch
 
 from client import ChatClient
+from connection import Connection
 
 
 class TestChatClient(unittest.TestCase):
@@ -17,5 +19,17 @@ class TestChatClient(unittest.TestCase):
         Client should sent message in appropriate format.
         """
         client = ChatClient('Albert')
+        client.connection = Mock()
         sent_message = client.send_message('Give food')
         self.assertEqual(sent_message, 'Albert:Give food')
+
+
+class TestConnection(unittest.TestCase):
+
+    def test_broadcast(self):
+        with patch.object(Connection, 'connect'):
+            c = Connection(('localhost', 9090))
+
+        with patch.object(c, 'get_messages', return_value=[]):
+            c.broadcast('some message')
+            self.assertIn('some message', c.get_messages())

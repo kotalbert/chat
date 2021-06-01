@@ -13,3 +13,7 @@ class TestChatFunctional(unittest.TestCase):
         messages = arwena.fetch_messages()
 
         self.assertListEqual(["Hello, give food"], messages)
+
+
+if __name__ == '__main__':
+    unittest.main()

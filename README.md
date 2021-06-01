@@ -1,2 +1,2 @@
-# tdd-python
-Code along with Test-Driven Development with Python, 2nd Edition
+# Chat
+Examples of Test Doubles usage in chat application.

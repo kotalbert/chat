@@ -26,7 +26,6 @@ class FakeServer:
         self._last_args = None
         self._messages = []
 
-
     def __call__(self, *args, **kwargs):
         """
         Make SyncManager think that a new connection was created

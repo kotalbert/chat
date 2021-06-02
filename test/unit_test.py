@@ -25,7 +25,8 @@ class TestChatClient(unittest.TestCase):
 
     def test_fetch_messages(self):
         client = ChatClient('Albert')
-        client.connection = Mock(return_value=['message1', 'message2'])
+        client.connection = Mock()
+        client.connection.get_messages.return_value = ['message1', 'message2']
         starting_messages = client.fetch_messages()
         client.connection.get_messages().append('message3')
         new_messages = client.fetch_messages()

@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import Mock, patch
 
 from client import ChatClient
-from connection import Connection
+from connection import Connection, FakeServer
 
 
 class TestChatClient(unittest.TestCase):
@@ -35,8 +35,19 @@ class TestConnection(unittest.TestCase):
             self.assertIn('some message', c.get_messages())
 
     @patch.object(ChatClient, '_get_connection')
-    def test_client_connection(self, mock_get_connection):
+    def test_client_connection(self, get_connection_mock):
         client = ChatClient('Albert')
         client.send_message('Give food.')
-        connection_spy = mock_get_connection()
+        connection_spy = get_connection_mock()
         connection_spy.broadcast.assert_called_with('Albert:Give food.')
+
+    @patch('multiprocessing.managers.listener_client', new={'pickle': (None, FakeServer())})
+    def test_exchange_with_server(self):
+        """
+        Connections should use the same server to communicate.
+        """
+        c1 = Connection(('localhost', 9090))
+        c2 = Connection(('localhost', 9090))
+
+        c2.broadcast('connected message')
+        self.assertIn('connected message', c1.get_messages())

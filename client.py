@@ -25,6 +25,6 @@ class ChatClient:
 
     @connection.setter
     def connection(self, new_connection: Connection):
-        if self._connection is None:
+        if self._connection is not None:
             self._connection.close()
         self._connection = new_connection

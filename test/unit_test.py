@@ -18,14 +18,12 @@ class TestChatClient(unittest.TestCase):
         """
         Client should sent message in appropriate format.
         """
-        client = ChatClient('Albert')
-        client.connection = Mock()
+        client = ChatClient('Albert', connection_provider=Mock())
         sent_message = client.send_message('Give food')
         self.assertEqual(sent_message, 'Albert:Give food')
 
     def test_fetch_messages(self):
-        client = ChatClient('Albert')
-        client.connection = Mock()
+        client = ChatClient('Albert', connection_provider=Mock())
         client.connection.get_messages.return_value = ['message1', 'message2']
         starting_messages = client.fetch_messages()
         client.connection.get_messages().append('message3')
@@ -44,11 +42,11 @@ class TestConnection(unittest.TestCase):
             c.broadcast('some message')
             self.assertIn('some message', c.get_messages())
 
-    @patch.object(ChatClient, '_get_connection')
-    def test_client_connection(self, get_connection_mock):
-        client = ChatClient('Albert')
+    @patch('connection.Connection', autospec=True)
+    def test_client_connection(self, connection_mock):
+        connection_spy = connection_mock.return_value
+        client = ChatClient('Albert', connection_provider=connection_mock)
         client.send_message('Give food.')
-        connection_spy = get_connection_mock()
         connection_spy.broadcast.assert_called_with('Albert:Give food.')
 
     @patch('multiprocessing.managers.listener_client', new={'pickle': (None, FakeServer())})

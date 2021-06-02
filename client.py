@@ -4,9 +4,10 @@ from connection import Connection
 
 
 class ChatClient:
-    def __init__(self, nickname: str):
+    def __init__(self, nickname: str, connection_provider=Connection):
         self.nickname = nickname
         self._connection: Optional[Connection] = None
+        self._connection_provider = connection_provider
         self._last_msg_index = 0
 
     def send_message(self, message: str):
@@ -20,18 +21,9 @@ class ChatClient:
         self._last_msg_index = len(messages)
         return new_message
 
-    @staticmethod
-    def _get_connection():
-        return Connection(('localhost', 9090))
-
     @property
     def connection(self):
         if self._connection is None:
-            self._connection = ChatClient._get_connection()
+            self._connection = self._connection_provider(('localhost', 9090))
         return self._connection
 
-    @connection.setter
-    def connection(self, new_connection: Connection):
-        if self._connection is not None:
-            self._connection.close()
-        self._connection = new_connection

@@ -23,6 +23,15 @@ class TestChatClient(unittest.TestCase):
         sent_message = client.send_message('Give food')
         self.assertEqual(sent_message, 'Albert:Give food')
 
+    def test_fetch_messages(self):
+        client = ChatClient('Albert')
+        client.connection = Mock(return_value=['message1', 'message2'])
+        starting_messages = client.fetch_messages()
+        client.connection.get_messages().append('message3')
+        new_messages = client.fetch_messages()
+        self.assertListEqual(starting_messages, ['message1', 'message2'])
+        self.assertListEqual(new_messages, ['message3'])
+
 
 class TestConnection(unittest.TestCase):
 

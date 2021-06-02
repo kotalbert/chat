@@ -14,7 +14,7 @@ class Connection(SyncManager):
         messages.append(message)
 
     def get_messages(self):
-        pass
+        return []
 
     def close(self):
         pass
@@ -22,9 +22,9 @@ class Connection(SyncManager):
 
 class FakeServer:
     def __init__(self):
-        self.last_command = None
-        self.last_args = None
-        self.messages = []
+        self._last_command = None
+        self._last_args = None
+        self._messages = []
 
     def __call__(self, *args, **kwargs):
         """
@@ -38,28 +38,28 @@ class FakeServer:
         Track commands that was sent to the server.
         """
         call_id, command, args, kwargs = data
-        self.last_command = command
-        self.last_args = args
+        self._last_command = command
+        self._last_args = args
 
     def recv(self, *args, **kwargs):
         """
         Send back the server response to the client.
         """
 
-        lc = self.last_command
+        lc = self._last_command
         if lc == 'dummy':
             return '#RETURN', None
         if lc == 'create':
             return '#RETURN', ('fake_id', tuple())
         if lc == 'append':
-            self.messages.append(self.last_args[0])
+            self._messages.append(self._last_args[0])
             return '#RETURN', None
         if lc == '__contains__':
-            return '#RETURN', self.last_args[0] in self.messages
+            return '#RETURN', self._last_args[0] in self._messages
         if lc in ('incref', 'decref', 'accept_connection'):
             return '#RETURN', None
 
-        return '#ERROR', ValueError(f'{self.last_command} - {self.last_args}')
+        return '#ERROR', ValueError(f'{self._last_command} - {self._last_args}')
 
     def close(self):
         pass

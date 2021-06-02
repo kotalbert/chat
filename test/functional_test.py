@@ -1,6 +1,25 @@
 import unittest
+from multiprocessing.managers import SyncManager, ListProxy
 
 from client import ChatClient
+
+# implement chat server for acceptance test
+_messages = []
+
+
+def _srv_get_messages():
+    return _messages
+
+
+class _ChatServerManager(SyncManager):
+    pass
+
+
+_ChatServerManager.register('get_messages', callable=_srv_get_messages, proxytype=ListProxy)
+
+
+def new_chat_server():
+    return _ChatServerManager(('', 9090), authkey=b'my_chat_secret')
 
 
 class TestChatFunctional(unittest.TestCase):
@@ -8,14 +27,12 @@ class TestChatFunctional(unittest.TestCase):
         """
         Chat clients should be able to exchange messages between each other.
         """
-        albert = ChatClient("Albert")
-        arwena = ChatClient("Arwena")
 
-        albert.send_message("Hello, give food.")
-        messages = arwena.fetch_messages()
+        with new_chat_server():
+            albert = ChatClient("Albert")
+            arwena = ChatClient("Arwena")
 
-        self.assertListEqual(["Hello, give food"], messages)
+            albert.send_message("Hello, give food.")
+            messages = arwena.fetch_messages()
 
-
-if __name__ == '__main__':
-    unittest.main()
+            self.assertListEqual(["Hello, give food"], messages)

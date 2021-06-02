@@ -33,3 +33,10 @@ class TestConnection(unittest.TestCase):
         with patch.object(c, 'get_messages', return_value=[]):
             c.broadcast('some message')
             self.assertIn('some message', c.get_messages())
+
+    @patch.object(Connection, '_get_connection')
+    def test_client_connection(self, connection_spy):
+        client = ChatClient('Albert')
+        client.send_message('Give food.')
+
+        self.assertTrue(connection_spy.broadcast.assert_called_with('Albert:Give food.'))
